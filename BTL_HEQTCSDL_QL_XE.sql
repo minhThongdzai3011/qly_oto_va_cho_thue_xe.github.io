@@ -470,14 +470,14 @@ CREATE INDEX IX_XE_MaLoai ON XE (MaLoai);
 
 
 --7 Stored Procedure
---Stored Procedure không tham số: Lấy danh sách tất cả khách hàng
+--Lấy danh sách tất cả khách hàng
 CREATE PROCEDURE sp_LayDanhSachKhachHang  
 AS  
 BEGIN  
     SELECT * FROM KHACHHANG;  
 END;  
 
---Stored Procedure có tham số đầu vào: Lấy thông tin xe theo mã loại xe
+--Lấy thông tin xe theo mã loại xe
 CREATE PROCEDURE sp_LayThongTinXeTheoLoai  
     @MaLoai NVARCHAR(10)  
 AS  
@@ -485,7 +485,7 @@ BEGIN
     SELECT * FROM XE WHERE MaLoai = @MaLoai;  
 END;  
 
---Stored Procedure có tham số đầu vào: Lấy danh sách hợp đồng theo khoảng ngày
+--Lấy danh sách hợp đồng theo khoảng ngày
 CREATE PROCEDURE sp_LayHopDongTheoKhoangNgay  
     @NgayBatDau DATE,  
     @NgayKetThuc DATE  
@@ -504,7 +504,7 @@ BEGIN
     SELECT @SoLuong = COUNT(*) FROM XE WHERE MaLoai = @MaLoai;  
 END;  
 
---Stored Procedure có tham số đầu vào và OUTPUT: Lấy giá thuê xe lớn nhất theo tuyến đường
+--Lấy giá thuê xe lớn nhất theo tuyến đường
 CREATE PROCEDURE sp_LayGiaThueXeCaoNhatTheoTuyen  
     @MaTuyen NVARCHAR(10),  
     @GiaCaoNhat DECIMAL(10, 2) OUTPUT  
@@ -513,7 +513,7 @@ BEGIN
     SELECT @GiaCaoNhat = MAX(GiaThueXe) FROM GIATHUEXE WHERE MaTuyen = @MaTuyen;  
 END;  
 
---Stored Procedure có tham số: Thêm một khách hàng mới
+--Thêm một khách hàng mới
 CREATE PROCEDURE sp_ThemKhachHang  
     @MaKhach NVARCHAR(10),  
     @TenKhach NVARCHAR(100),  
@@ -524,7 +524,7 @@ BEGIN
     VALUES (@MaKhach, @TenKhach, @SoDienThoaiKhach);  
 END;  
 
---Stored Procedure có tham số: Cập nhật số điện thoại của khách hàng
+--Cập nhật số điện thoại của khách hàng
 CREATE PROCEDURE sp_CapNhatSoDienThoaiKhachHang  
     @MaKhach NVARCHAR(10),  
     @SoDienThoaiMoi NVARCHAR(15)  
@@ -546,7 +546,7 @@ BEGIN
     RETURN @TongSoXe;  
 END;  
 
---Function trả về giá trị vô hướng: Tính quảng đường trung bình của các tuyến đường
+--Tính quảng đường trung bình của các tuyến đường
 CREATE FUNCTION fn_QuangDuongTrungBinh()  
 RETURNS DECIMAL(10, 2)  
 AS  
@@ -556,7 +556,7 @@ BEGIN
     RETURN @QuangDuongTB;  
 END;  
 
---Function trả về giá trị vô hướng: Lấy tên khách hàng theo mã khách hàng
+--Lấy tên khách hàng theo mã khách hàng
 CREATE FUNCTION fn_LayTenKhachHang(@MaKhach NVARCHAR(10))  
 RETURNS NVARCHAR(100)  
 AS  
@@ -566,7 +566,7 @@ BEGIN
     RETURN @TenKhach;  
 END;  
 
---Function trả về bảng: Lấy danh sách xe theo hãng xe
+--Lấy danh sách xe theo hãng xe
 CREATE FUNCTION fn_DanhSachXeTheoHang(@HangXe NVARCHAR(100))  
 RETURNS TABLE  
 AS  
@@ -575,7 +575,7 @@ RETURN
     SELECT * FROM XE WHERE HangXe = @HangXe  
 );  
 
---Function trả về bảng: Lấy danh sách hợp đồng thuê xe trong một khoảng thời gian
+--Lấy danh sách hợp đồng thuê xe trong một khoảng thời gian
 CREATE FUNCTION fn_HopDongThueXeTheoThoiGian(@NgayBatDau DATE, @NgayKetThuc DATE)  
 RETURNS TABLE  
 AS  
@@ -585,7 +585,7 @@ RETURN
     WHERE NgayDi >= @NgayBatDau AND NgayDi <= @NgayKetThuc  
 );  
 
---Function trả về bảng: Lấy danh sách các tuyến đường có khoảng cách lớn hơn một giá trị cụ thể
+--Lấy danh sách các tuyến đường có khoảng cách lớn hơn một giá trị cụ thể
 CREATE FUNCTION fn_TuyenDuongDaiHon(@QuangDuongMin INT)  
 RETURNS TABLE  
 AS  
@@ -594,7 +594,7 @@ RETURN
     SELECT * FROM TUYEN WHERE QuangDuong > @QuangDuongMin  
 );  
 
---Function sử dụng biến bảng: Lấy thông tin hợp đồng và khách hàng liên quan
+--Lấy thông tin hợp đồng và khách hàng liên quan
 CREATE FUNCTION fn_HopDongVaKhachHang()  
 RETURNS @KetQua TABLE  
 (  
@@ -612,7 +612,7 @@ BEGIN
     RETURN;  
 END;  
 
---Function sử dụng biến bảng: Thống kê số lượng hợp đồng theo từng tháng
+--Thống kê số lượng hợp đồng theo từng tháng
 CREATE FUNCTION fn_ThongKeHopDongTheoThang(@Year INT)  
 RETURNS @KetQua TABLE  
 (  
@@ -633,7 +633,7 @@ BEGIN
     RETURN;  
 END;  
 
---Function trả về giá trị vô hướng: Tính tổng giá trị của một hợp đồng (sử dụng GIATHUEXE)
+--Tính tổng giá trị của một hợp đồng (sử dụng GIATHUEXE)
 CREATE FUNCTION fn_TinhTongGiaTriHopDong(@MaHD NVARCHAR(10))  
 RETURNS DECIMAL(10, 2)  
 AS  
@@ -644,10 +644,10 @@ BEGIN
     FROM GIATHUEXE   
     WHERE MaHD = @MaHD;  
     
-    RETURN ISNULL(@TongGiaTri, 0); -- Trả về 0 nếu không tìm thấy hợp đồng  
+    RETURN ISNULL(@TongGiaTri, 0);  
 END;  
 
---Function trả về bảng: Liệt kê các xe có số chỗ ngồi lớn hơn hoặc bằng một giá trị cho trước (từ bảng LOAIXE và XE)
+--Liệt kê các xe có số chỗ ngồi lớn hơn hoặc bằng một giá trị cho trước (từ bảng LOAIXE và XE)
 CREATE FUNCTION fn_XeCoSoChoNgoiLonHonHoacBang(@SoChoNgoi INT)  
 RETURNS TABLE  
 AS  
@@ -787,8 +787,7 @@ USE [ten_co_so_du_lieu];
 GO  
 CREATE USER [ten_nguoi_dung] FOR LOGIN [ten_nguoi_dung];  
 GO  
-
--- (Nếu sử dụng Windows Authentication)  
+ 
 CREATE LOGIN [DOMAIN\ten_nguoi_dung_windows] FROM WINDOWS;  
 GO  
 
@@ -827,6 +826,6 @@ GO
 -- Phục hồi cơ sở dữ liệu  
 RESTORE DATABASE [ten_co_so_du_lieu]  
 FROM DISK = 'duong_dan_den_file_sao_luu.bak'  
-WITH REPLACE,  -- Ghi đè cơ sở dữ liệu hiện có  
-RECOVERY;      -- Đưa cơ sở dữ liệu vào trạng thái sẵn sàng sử dụng  
+WITH REPLACE, 
+RECOVERY;      
 GO  
