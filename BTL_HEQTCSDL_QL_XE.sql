@@ -478,15 +478,24 @@ BEGIN
 END;  
 
 --Lấy thông tin xe theo mã loại xe
-CREATE PROCEDURE sp_LayThongTinXeTheoLoai  
+CREATE PROC sp_LayDanhSachKhachHang  
+AS  
+BEGIN  
+    SELECT * FROM KHACHHANG;  
+END;  
+EXEC sp_LayDanhSachKhachHang;  
+
+--Lấy thông tin xe theo mã loại xe  
+CREATE PROC sp_LayThongTinXeTheoLoai  
     @MaLoai NVARCHAR(10)  
 AS  
 BEGIN  
     SELECT * FROM XE WHERE MaLoai = @MaLoai;  
 END;  
+EXEC sp_LayThongTinXeTheoLoai @MaLoai = 'L01';  
 
---Lấy danh sách hợp đồng theo khoảng ngày
-CREATE PROCEDURE sp_LayHopDongTheoKhoangNgay  
+--Lấy danh sách hợp đồng theo khoảng ngày  
+CREATE PROC sp_LayHopDongTheoKhoangNgay  
     @NgayBatDau DATE,  
     @NgayKetThuc DATE  
 AS  
@@ -494,27 +503,34 @@ BEGIN
     SELECT * FROM HOPDONGTHUE  
     WHERE NgayDi >= @NgayBatDau AND NgayDi <= @NgayKetThuc;  
 END;  
+EXEC sp_LayHopDongTheoKhoangNgay @NgayBatDau = '2024-03-01', @NgayKetThuc = '2024-03-10';  
 
---Stored Procedure có tham số đầu vào và OUTPUT: Đếm số lượng xe của một loại xe cụ thể
-CREATE PROCEDURE sp_DemSoLuongXeTheoLoai  
+--Đếm số lượng xe của một loại xe cụ thể  
+CREATE PROC sp_DemSoLuongXeTheoLoai  
     @MaLoai NVARCHAR(10),  
     @SoLuong INT OUTPUT  
 AS  
 BEGIN  
     SELECT @SoLuong = COUNT(*) FROM XE WHERE MaLoai = @MaLoai;  
 END;  
+DECLARE @SoLuong INT;  
+EXEC sp_DemSoLuongXeTheoLoai @MaLoai = 'L01', @SoLuong = @SoLuong OUTPUT;  
+SELECT @SoLuong AS SoLuong;  
 
---Lấy giá thuê xe lớn nhất theo tuyến đường
-CREATE PROCEDURE sp_LayGiaThueXeCaoNhatTheoTuyen  
+--Lấy giá thuê xe lớn nhất theo tuyến đường  
+CREATE PROC sp_LayGiaThueXeCaoNhatTheoTuyen  
     @MaTuyen NVARCHAR(10),  
     @GiaCaoNhat DECIMAL(10, 2) OUTPUT  
 AS  
 BEGIN  
     SELECT @GiaCaoNhat = MAX(GiaThueXe) FROM GIATHUEXE WHERE MaTuyen = @MaTuyen;  
 END;  
+DECLARE @GiaCaoNhat DECIMAL(10, 2);  
+EXEC sp_LayGiaThueXeCaoNhatTheoTuyen @MaTuyen = 'T01', @GiaCaoNhat = @GiaCaoNhat OUTPUT;  
+SELECT @GiaCaoNhat AS GiaCaoNhat;  
 
---Thêm một khách hàng mới
-CREATE PROCEDURE sp_ThemKhachHang  
+--Thêm một khách hàng mới  
+CREATE PROC sp_ThemKhachHang  
     @MaKhach NVARCHAR(10),  
     @TenKhach NVARCHAR(100),  
     @SoDienThoaiKhach NVARCHAR(15)  
@@ -523,9 +539,10 @@ BEGIN
     INSERT INTO KHACHHANG (MaKhach, TenKhach, SoDienThoaiKhach)  
     VALUES (@MaKhach, @TenKhach, @SoDienThoaiKhach);  
 END;  
+EXEC sp_ThemKhachHang @MaKhach = 'KH099', @TenKhach = 'Nguyễn Văn Mới', @SoDienThoaiKhach = '0123456789';  
 
---Cập nhật số điện thoại của khách hàng
-CREATE PROCEDURE sp_CapNhatSoDienThoaiKhachHang  
+--Cập nhật số điện thoại của khách hàng  
+CREATE PROC sp_CapNhatSoDienThoaiKhachHang  
     @MaKhach NVARCHAR(10),  
     @SoDienThoaiMoi NVARCHAR(15)  
 AS  
@@ -534,6 +551,8 @@ BEGIN
     SET SoDienThoaiKhach = @SoDienThoaiMoi  
     WHERE MaKhach = @MaKhach;  
 END;  
+EXEC sp_CapNhatSoDienThoaiKhachHang @MaKhach = 'KH001', @SoDienThoaiMoi = '0987654321';  
+ 
 
 --10 function
 --Function trả về giá trị vô hướng: Tính tổng số xe của một loại xe cụ thể
