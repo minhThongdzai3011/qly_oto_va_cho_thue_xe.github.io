@@ -1,4 +1,4 @@
-﻿--create database BAITAPLON
+--create database BAITAPLON
 use BAITAPLON
 go
 
@@ -448,36 +448,28 @@ SELECT * FROM View_SoLuongXeThueTheoNgay;
 
 --7 index
 --Số điện thoại thường được sử dụng để tìm kiếm khách hàng
-CREATE UNIQUE NONCLUSTERED INDEX IX_KhachHang_SoDienThoai  ON KhachHang (SoDienThoaiKhach);  
+CREATE UNIQUE INDEX IX_KhachHang_SoDienThoai  ON KhachHang (SoDienThoaiKhach);  
 
 --Biển số xe là duy nhất và thường được sử dụng để tìm kiếm xe.
-CREATE UNIQUE NONCLUSTERED INDEX IX_Xe_BienSoXe  ON Xe (BienSoXe);  
+CREATE UNIQUE INDEX IX_Xe_BienSoXe  ON Xe (BienSoXe);  
 
 --Lọc xe theo loại xe.
-CREATE NONCLUSTERED INDEX IX_Xe_MaLoaiXe  ON Xe (MaLoai);  
+CREATE INDEX IX_Xe_MaLoaiXe  ON Xe (MaLoai);  
 
 --Tìm kiếm loại xe theo tên
 CREATE NONCLUSTERED INDEX IX_LoaiXe_TenLoaiXe ON Xe (HangXe);  
 
 --Tìm kiếm các xe đang được thuê trong một khoảng thời gian nhất định
-CREATE NONCLUSTERED INDEX IX_HopDongThue_NgayThue_NgayTra  ON HopDongThue (NgayDi, NgayVe);  
+CREATE INDEX IX_HopDongThue_NgayThue_NgayTra  ON HopDongThue (NgayDi, NgayVe);  
 
 --Truy vấn lịch sử thuê xe của khách hàng, sắp xếp theo thời gian thuê
-CREATE NONCLUSTERED INDEX IX_HopDongThue_MaKhachHang_NgayThue ON HopDongThue (MaKhach, NgayDi);  
+CREATE INDEX IX_HopDongThue_MaKhachHang_NgayThue ON HopDongThue (MaKhach, NgayDi);  
 
 --Index trên cột MaLoai của bảng XE
 CREATE INDEX IX_XE_MaLoai ON XE (MaLoai);  
 
-
 --7 Stored Procedure
 --Lấy danh sách tất cả khách hàng
-CREATE PROCEDURE sp_LayDanhSachKhachHang  
-AS  
-BEGIN  
-    SELECT * FROM KHACHHANG;  
-END;  
-
---Lấy thông tin xe theo mã loại xe
 CREATE PROC sp_LayDanhSachKhachHang  
 AS  
 BEGIN  
@@ -552,10 +544,9 @@ BEGIN
     WHERE MaKhach = @MaKhach;  
 END;  
 EXEC sp_CapNhatSoDienThoaiKhachHang @MaKhach = 'KH001', @SoDienThoaiMoi = '0987654321';  
- 
 
 --10 function
---Function trả về giá trị vô hướng: Tính tổng số xe của một loại xe cụ thể
+--Tính tổng số xe của một loại xe cụ thể
 CREATE FUNCTION fn_TongSoXeTheoLoai(@MaLoai NVARCHAR(10))  
 RETURNS INT  
 AS  
@@ -564,6 +555,8 @@ BEGIN
     SELECT @TongSoXe = COUNT(*) FROM XE WHERE MaLoai = @MaLoai;  
     RETURN @TongSoXe;  
 END;  
+DECLARE @MaLoai NVARCHAR(10) = 'L01'; 
+SELECT dbo.fn_TongSoXeTheoLoai(@MaLoai) AS TongSoXe;  
 
 --Tính quảng đường trung bình của các tuyến đường
 CREATE FUNCTION fn_QuangDuongTrungBinh()  
@@ -574,6 +567,7 @@ BEGIN
     SELECT @QuangDuongTB = AVG(QuangDuong) FROM TUYEN;  
     RETURN @QuangDuongTB;  
 END;  
+SELECT dbo.fn_QuangDuongTrungBinh() AS QuangDuongTrungBinh; 
 
 --Lấy tên khách hàng theo mã khách hàng
 CREATE FUNCTION fn_LayTenKhachHang(@MaKhach NVARCHAR(10))  
@@ -584,6 +578,8 @@ BEGIN
     SELECT @TenKhach = TenKhach FROM KHACHHANG WHERE MaKhach = @MaKhach;  
     RETURN @TenKhach;  
 END;  
+DECLARE @MaKhach NVARCHAR(10) = 'K01'; 
+SELECT dbo.fn_LayTenKhachHang(@MaKhach) AS TenKhach;  
 
 --Lấy danh sách xe theo hãng xe
 CREATE FUNCTION fn_DanhSachXeTheoHang(@HangXe NVARCHAR(100))  
@@ -593,6 +589,7 @@ RETURN
 (  
     SELECT * FROM XE WHERE HangXe = @HangXe  
 );  
+SELECT * FROM fn_DanhSachXeTheoHang('Toyota');
 
 --Lấy danh sách hợp đồng thuê xe trong một khoảng thời gian
 CREATE FUNCTION fn_HopDongThueXeTheoThoiGian(@NgayBatDau DATE, @NgayKetThuc DATE)  
@@ -603,6 +600,7 @@ RETURN
     SELECT * FROM HOPDONGTHUE  
     WHERE NgayDi >= @NgayBatDau AND NgayDi <= @NgayKetThuc  
 );  
+SELECT * FROM fn_HopDongThueXeTheoThoiGian('2024-03-01', '2024-03-11');
 
 --Lấy danh sách các tuyến đường có khoảng cách lớn hơn một giá trị cụ thể
 CREATE FUNCTION fn_TuyenDuongDaiHon(@QuangDuongMin INT)  
@@ -612,6 +610,7 @@ RETURN
 (  
     SELECT * FROM TUYEN WHERE QuangDuong > @QuangDuongMin  
 );  
+SELECT * FROM fn_TuyenDuongDaiHon(100);
 
 --Lấy thông tin hợp đồng và khách hàng liên quan
 CREATE FUNCTION fn_HopDongVaKhachHang()  
@@ -630,6 +629,7 @@ BEGIN
     JOIN KHACHHANG KH ON HD.MaKhach = KH.MaKhach;  
     RETURN;  
 END;  
+SELECT * FROM fn_HopDongVaKhachHang();  
 
 --Thống kê số lượng hợp đồng theo từng tháng
 CREATE FUNCTION fn_ThongKeHopDongTheoThang(@Year INT)  
@@ -651,6 +651,7 @@ BEGIN
     END;  
     RETURN;  
 END;  
+SELECT * FROM fn_ThongKeHopDongTheoThang(2024);
 
 --Tính tổng giá trị của một hợp đồng (sử dụng GIATHUEXE)
 CREATE FUNCTION fn_TinhTongGiaTriHopDong(@MaHD NVARCHAR(10))  
@@ -663,8 +664,10 @@ BEGIN
     FROM GIATHUEXE   
     WHERE MaHD = @MaHD;  
     
-    RETURN ISNULL(@TongGiaTri, 0);  
+    RETURN ISNULL(@TongGiaTri, 0); -- Trả về 0 nếu không tìm thấy hợp đồng  
 END;  
+DECLARE @MaHD NVARCHAR(10) = 'MD001'; 
+SELECT dbo.fn_TinhTongGiaTriHopDong(@MaHD) AS TongGiaTri; 
 
 --Liệt kê các xe có số chỗ ngồi lớn hơn hoặc bằng một giá trị cho trước (từ bảng LOAIXE và XE)
 CREATE FUNCTION fn_XeCoSoChoNgoiLonHonHoacBang(@SoChoNgoi INT)  
@@ -680,6 +683,7 @@ RETURN
     JOIN LOAIXE LX ON XE.MaLoai = LX.MaLoai  
     WHERE LX.SoCho >= @SoChoNgoi  
 );  
+SELECT * FROM fn_XeCoSoChoNgoiLonHonHoacBang(5);
 
 --7 trigger
 -- Kiểm tra xem mã xe có tồn tại trong bảng XE khi thêm mới một hợp đồng thuê
@@ -798,53 +802,41 @@ END;
 -- Chương 5
 
 -- Tạo login (nếu sử dụng SQL Server Authentication)  
-CREATE LOGIN [ten_nguoi_dung] WITH PASSWORD = 'mat_khau_manh';  
+CREATE LOGIN [MINHTHONG] WITH PASSWORD = '123';  
 GO  
 
 -- Tạo user trong cơ sở dữ liệu cụ thể  
-USE [ten_co_so_du_lieu];  
+USE [BAITAPLON];  
 GO  
-CREATE USER [ten_nguoi_dung] FOR LOGIN [ten_nguoi_dung];  
-GO  
- 
-CREATE LOGIN [DOMAIN\ten_nguoi_dung_windows] FROM WINDOWS;  
-GO  
-
-USE [ten_co_so_du_lieu];  
-GO  
-CREATE USER [ten_nguoi_dung_windows] FOR LOGIN [DOMAIN\ten_nguoi_dung_windows];  
+CREATE USER [MINH_THONG] FOR LOGIN [MINHTHONG];  
 GO  
 
 -- Cấp quyền SELECT cho user trên một bảng  
-GRANT SELECT ON [ten_bang] TO [ten_nguoi_dung];  
+GRANT SELECT ON [XE] TO [MINH_THONG];  
 GO  
 
 -- Thu hồi quyền INSERT từ user trên một bảng  
-REVOKE INSERT ON [ten_bang] FROM [ten_nguoi_dung];  
+REVOKE INSERT ON [XE] FROM [MINH_THONG];  
 GO  
 
 -- Thêm user vào vai trò db_datareader (chỉ đọc)  
-ALTER ROLE db_datareader ADD MEMBER [ten_nguoi_dung];  
+ALTER ROLE db_datareader ADD MEMBER [MINH_THONG];  
 GO  
 
 -- Thêm user vào vai trò db_datawriter (ghi dữ liệu)  
-ALTER ROLE db_datawriter ADD MEMBER [ten_nguoi_dung];  
-GO  
-
---Cấp quyền thực thi stored procedure  
-GRANT EXECUTE ON [ten_stored_procedure] TO [ten_nguoi_dung];  
-GO  
+ALTER ROLE db_datawriter ADD MEMBER [MINH_THONG];  
+GO   
 
 -- Sao lưu toàn bộ cơ sở dữ liệu  
-BACKUP DATABASE [ten_co_so_du_lieu]  
+BACKUP DATABASE [BAITAPLON]  
 TO DISK = 'duong_dan_den_file_sao_luu.bak'  
 WITH FORMAT,  
 NAME = 'Sao luu toan bo co so du lieu';  
 GO  
 
 -- Phục hồi cơ sở dữ liệu  
-RESTORE DATABASE [ten_co_so_du_lieu]  
+RESTORE DATABASE [BAITAPLON]  
 FROM DISK = 'duong_dan_den_file_sao_luu.bak'  
-WITH REPLACE, 
-RECOVERY;      
+WITH REPLACE,  
+RECOVERY;  
 GO  
